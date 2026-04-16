@@ -1,19 +1,20 @@
 ---
 name: frankenphp-compat-check
-description: Check Symfony bundle or component compatibility with FrankenPHP worker mode. Invoke to audit code or before deploying to FrankenPHP.
+description: Check Symfony code (application, bundle, or component) compatibility with FrankenPHP worker mode. Invoke to audit code or before deploying to FrankenPHP.
 allowed-tools: Read Glob Grep
-argument-hint: "[path to bundle or component]"
+argument-hint: "[path to application, bundle, or component]"
 ---
 
-You are an expert auditor for FrankenPHP worker mode compatibility. You analyze Symfony bundles and components to detect patterns that cause state leakage or crashes in long-running worker processes.
+You are an expert auditor for FrankenPHP worker mode compatibility. You analyze Symfony code (full applications, bundles, or standalone components) to detect patterns that cause state leakage or crashes in long-running worker processes.
 
-This skill focuses exclusively on **worker mode runtime safety** (not general Symfony bundle best practices like structure, DI, or tests).
+This skill focuses exclusively on **worker mode runtime safety** (not general Symfony best practices like structure, DI, or tests).
 
 ## How to audit
 
 1. If `$ARGUMENTS` is provided, use it as the root path. Otherwise, use the current working directory.
-2. Read the codebase (Glob, Grep, Read) to scan for the patterns below.
-3. Produce a structured report grouped by category, with severity and recommendation for each finding.
+2. Scan the codebase (Glob, Grep, Read) for the patterns in sections 1-11 below.
+3. Scan `composer.json` (or `composer.lock`) for required extensions and `Dockerfile` / `compose.yaml` for the base image, to detect patterns in section 12.
+4. Produce a structured report grouped by category, with severity and recommendation for each finding.
 
 ## Checklist
 
@@ -28,7 +29,7 @@ Services that store request-scoped data in properties will leak state between re
 
 **Fix:** Implement `ResetInterface` and clear all request-scoped properties in `reset()`. Verify the service is tagged `kernel.reset` (automatic if autoconfigure is enabled).
 
-Note: Since Symfony 7.4, FrankenPHP worker mode is natively supported by the Runtime component -- the `runtime/frankenphp-symfony` package is no longer needed.
+Note: Since [Symfony 7.4][symfony-7.4-release], FrankenPHP worker mode is natively supported by the Runtime component: the `runtime/frankenphp-symfony` package is no longer needed.
 
 ### 2. Static state (Critical)
 
@@ -114,7 +115,7 @@ In long-running workers, database connections may timeout and become stale ("MyS
 - On Symfony < 7.3: missing `dbal.connections.*.options.flags` ping config or absence of middleware/listener to reconnect
 - Manual PDO/DBAL connection handling outside the Doctrine connection wrapper
 
-**Fix:** On Symfony >= 7.3, Doctrine connections are reset automatically via `kernel.reset`. On 6.4 LTS, ensure `DbalConnectionReset` is registered (provided by `symfony/doctrine-bridge` >= 6.4.4) or use a custom listener on `kernel.request` to call `$connection->close()` so it reconnects lazily.
+**Fix:** Ensure the Doctrine connection is tagged `kernel.reset` so Symfony resets it between requests (auto-configured by `symfony/doctrine-bridge` in recent versions, check the package's [CHANGELOG][doctrine-bridge-changelog] for your exact version). Alternatively, add a `kernel.request` listener that calls `$connection->close()` to force a lazy reconnect.
 
 ### 10. Monolog buffering handlers (Warning)
 
@@ -124,16 +125,31 @@ Handlers that buffer log records (`BufferHandler`, `FingersCrossedHandler`, `Ded
 - Monolog `BufferHandler` or `FingersCrossedHandler` in config without `kernel.reset`
 - Custom handlers extending `AbstractHandler` that store records in a property
 
-**Fix:** Ensure Monolog's `ResettableInterface` is properly wired. Symfony's MonologBundle >= 3.8 auto-tags resettable handlers with `kernel.reset`. If using custom handlers, implement `Monolog\ResettableInterface` and clear buffers in `reset()`.
+**Fix:** Ensure Monolog's `ResettableInterface` is properly wired. Symfony's MonologBundle auto-tags handlers implementing `Monolog\ResettableInterface` with `kernel.reset` ([confirmed behavior][monolog-bundle-reset]). If using custom handlers, implement `Monolog\ResettableInterface` and clear buffers in `reset()`.
 
-### 11. Known runtime incompatibilities (Info)
+### 11. Runtime state mutations (Warning)
 
-- `ext-openssl` on Alpine/musl: random segfaults in worker mode -- use Debian-based images in production
+PHP runtime settings and handlers set during a request persist across subsequent requests in the same worker.
+
+**Detect:**
+- `ini_set()`, `putenv()`, `setlocale()`, `date_default_timezone_set()` called in request handling code
+- `set_error_handler()`, `set_exception_handler()` without a matching `restore_error_handler()` / `restore_exception_handler()`
+- `register_shutdown_function()` (runs at worker shutdown, not end of request, so logic expecting per-request cleanup is broken)
+- `header_remove()` or manipulation of global response state outside Symfony's `Response`
+- `apcu_*` used as an unbounded request-scoped cache (entries persist across the entire worker lifetime)
+
+**Fix:** Move runtime config to container parameters, framework config, or service constructors (executed once at boot). Restore handlers in a `finally` block or via `ResetInterface`. For `apcu`, add TTLs or size-based eviction; prefer `Symfony\Contracts\Cache\CacheInterface`.
+
+### 12. Known runtime incompatibilities (Info)
+
+Detected primarily by scanning `composer.json` (extensions listed in `require` or `require-dev`) and the project's `Dockerfile` / image base, not just the code.
+
+- `ext-openssl` on Alpine/musl: random segfaults in worker mode, use Debian-based images in production
 - `ext-imap`: not fork-safe, crashes in long-running processes
-- `ext-newrelic`: not thread-safe (ZTS incompatible), no workaround available -- use OpenTelemetry as an alternative
+- `ext-newrelic`: not thread-safe (ZTS incompatible), no workaround available, use OpenTelemetry as an alternative
 - `pcntl_fork()`: incompatible with worker mode by design
-- Native sessions (`session_start()`): use Symfony's session handler with a stateless store (Redis, database)
-- Session data leakage (CVE-2026-24894): before FrankenPHP 1.11.2, `$_SESSION` was not reset between worker requests, causing cross-user session data exposure. Upgrade to >= 1.11.2.
+- Native sessions (`session_start()`): use Symfony's session handler with a non-native backend (Redis, database) instead of the default file-based session
+- Session data leakage ([CVE-2026-24894][cve-2026-24894]): before FrankenPHP 1.11.2, `$_SESSION` was not reset between worker requests, causing cross-user session data exposure. Upgrade to >= 1.11.2.
 
 ## Report format
 
@@ -157,7 +173,16 @@ If no issues are found, state that the code appears compatible and note any assu
 
 ## Reference sources
 
-- https://frankenphp.dev/docs/worker/
-- https://frankenphp.dev/docs/known-issues/
-- https://symfony.com/doc/current/service_container/reset.html
-- https://symfony.com/doc/current/reference/dic_tags.html#kernel-reset
+- [FrankenPHP worker mode docs][frankenphp-worker]
+- [FrankenPHP known issues][frankenphp-known-issues]
+- [Symfony: Resetting services][symfony-reset]
+- [Symfony: `kernel.reset` tag reference][symfony-kernel-reset]
+
+[frankenphp-worker]: https://frankenphp.dev/docs/worker/
+[frankenphp-known-issues]: https://frankenphp.dev/docs/known-issues/
+[symfony-reset]: https://symfony.com/doc/current/service_container/reset.html
+[symfony-kernel-reset]: https://symfony.com/doc/current/reference/dic_tags.html#kernel-reset
+[symfony-7.4-release]: https://symfony.com/blog/new-in-symfony-7-4-dx-improvements-part-2
+[doctrine-bridge-changelog]: https://github.com/symfony/doctrine-bridge/blob/7.4/CHANGELOG.md
+[monolog-bundle-reset]: https://github.com/symfony/monolog-bundle/issues/361
+[cve-2026-24894]: https://github.com/php/frankenphp/security/advisories/GHSA-r3xh-3r3w-47gp
