@@ -137,29 +137,13 @@ Handlers that buffer log records (`BufferHandler`, `FingersCrossedHandler`, `Ded
 
 ## Report format
 
-```
-# FrankenPHP Worker Mode Compatibility Report
+Output a report titled "FrankenPHP Worker Mode Compatibility Report" with:
+- **Path** and **files scanned** count
+- Findings grouped by severity: **Critical**, **Warning**, **Info**
+- Each finding: category, file:line, what was detected, risk, and fix
+- A short summary with count per severity and top priority actions
 
-**Path:** [audited path]
-**Files scanned:** [count]
-**Findings:** [count by severity]
-
-## Critical
-
-### [Category] -- [file:line]
-**Pattern:** [what was detected]
-**Risk:** [what happens in worker mode]
-**Fix:** [concrete recommendation]
-
-## Warning
-[...]
-
-## Info
-[...]
-
-## Summary
-[1-3 sentences: overall assessment and top priority actions]
-```
+Use standard severity levels (Critical, Warning, Info) so that formatting rules (e.g. `dx-report-format`) can apply their own visual indicators.
 
 If no issues are found, state that the code appears compatible and note any assumptions made.
 

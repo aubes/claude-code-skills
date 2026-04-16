@@ -1,50 +1,60 @@
-# Claude Code Skills
+# Claude Code Skills & Rules
 
-A collection of open-source, self-contained skills for [Claude Code](https://claude.ai/code).
+A handful of skills and rules I use with [Claude Code](https://claude.ai/code). Nothing fancy, just things I got tired of repeating.
 
-Each skill is independent and can be installed on its own.
+Pick what you like, ignore the rest.
 
-## Available skills
+## Skills
 
 | Skill | Description |
 |---|---|
-| [frankenphp-compat-check](frankenphp-compat-check/) | Audit Symfony bundles/components for FrankenPHP worker mode compatibility |
+| [frankenphp-compat-check](skills/frankenphp-compat-check/) | Check FrankenPHP worker mode compatibility for Symfony bundles |
 
-## Installation
+## Rules
 
-Copy a skill directory to your Claude Code skills folder:
+| Rule | Description |
+|---|---|
+| [concise-comments](rules/concise-comments/) | Short comments, don't explain the framework |
+| [objective-analysis](rules/objective-analysis/) | Facts and trade-offs, not opinions |
+| [pragmatic-design](rules/pragmatic-design/) | No over-engineering, solve the actual problem |
+| [reliable-information](rules/reliable-information/) | Only state what you can verify |
+| [casual-tone](rules/casual-tone/) | Light humor, geek refs when it fits |
+| [no-em-dash](rules/no-em-dash/) | Ban the em dash |
+| [dx-report-format](rules/dx-report-format/) | Color-coded severity indicators and scannable report format |
+| [fancy-report](rules/fancy-report/) | Full report template: header, findings, summary table, 30-second readable |
+
+## Install
+
+### Skills
 
 ```bash
-cp -r frankenphp-compat-check ~/.claude/skills/
+cp -r skills/frankenphp-compat-check ~/.claude/skills/
 ```
 
-Or clone the repo and symlink:
+Or symlink:
 
 ```bash
 git clone https://github.com/aubes/claude-code-skills.git
-ln -s "$(pwd)/claude-code-skills/frankenphp-compat-check" ~/.claude/skills/frankenphp-compat-check
+ln -s "$(pwd)/claude-code-skills/skills/frankenphp-compat-check" ~/.claude/skills/frankenphp-compat-check
 ```
 
-## Usage
+### Rules
 
-Once installed, invoke a skill with its slash command in Claude Code:
+```bash
+# Global (all projects)
+cp rules/concise-comments/rule.md ~/.claude/rules/concise-comments.md
 
+# Per project
+cp rules/concise-comments/rule.md your-project/.claude/rules/concise-comments.md
 ```
-/frankenphp-compat-check src/
-```
 
-## Design principles
-
-- **Self-contained**: each skill works on its own, no dependency on other skills
-- **Single purpose**: one skill = one well-defined audit or advisory scope
-- **Composable**: skills can be combined via Claude Code agents for broader workflows
+Rules are loaded automatically when present in `~/.claude/rules/` or `.claude/rules/`.
 
 ## Contributing
 
-1. Each skill lives in its own directory with a `SKILL.md` file
-2. Follow the [Claude Code skill format](https://docs.anthropic.com/en/docs/claude-code/skills)
-3. Skills must be self-contained (no cross-skill dependency)
-4. Include a "Technologies covered" section with reference versions
+**Skills:** create a dir in `skills/`, add a `SKILL.md` following the [skill format](https://docs.anthropic.com/en/docs/claude-code/skills), include a "Technologies covered" table.
+
+**Rules:** create a dir in `rules/`, add a `rule.md`.
 
 ## License
 
