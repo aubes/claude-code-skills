@@ -14,25 +14,32 @@ Pick what you like, ignore the rest.
 
 | Skill | Description |
 |---|---|
-| [frankenphp-compat-check](skills/frankenphp-compat-check/) | Check FrankenPHP worker mode compatibility for Symfony code (app, bundle, component) |
+| [symfony-frankenphp-check](skills/symfony-frankenphp-check/) | Audit Symfony code (app, bundle, component) for FrankenPHP worker mode compatibility |
 
 ## Rules
 
-| Rule | Description |
-|---|---|
-| [concise-comments](rules/concise-comments/) | Short comments, don't explain the framework |
-| [objective-analysis](rules/objective-analysis/) | Facts and trade-offs, not opinions |
-| [pragmatic-design](rules/pragmatic-design/) | No over-engineering, solve the actual problem |
-| [reliable-information](rules/reliable-information/) | Only state what you can verify |
-| [casual-tone](rules/casual-tone/) | Light humor, geek refs when it fits |
-| [no-em-dash](rules/no-em-dash/) | Ban the d'em dash |
-| [dx-report-format](rules/dx-report-format/) | Report format: severity indicators, header, findings, summary table |
+| Rule | Category | Scope | Description |
+|---|---|---|---|
+| [concise-comments](rules/concise-comments/) | Code | all | Short comments, don't explain the framework |
+| [pragmatic-design](rules/pragmatic-design/) | Code | all | No over-engineering, solve the actual problem |
+| [objective-analysis](rules/objective-analysis/) | Communication | all | Facts and trade-offs, not opinions |
+| [reliable-information](rules/reliable-information/) | Communication | all | Only state what you can verify |
+| [casual-tone](rules/casual-tone/) | Communication | all | Light humor, geek refs when it fits |
+| [no-em-dash](rules/no-em-dash/) | Communication | all | Ban the d'em dash |
+| [dx-report-format](rules/dx-report-format/) | Output | all | Report format: severity indicators, header, findings, summary table |
+
+Categories:
+- **Code**: influences generated code (style, design)
+- **Communication**: influences how Claude speaks with you (tone, accuracy, analysis)
+- **Output**: shapes specific deliverables (reports, audits)
+
+Scope uses Claude Code's [path-scoped rules](https://code.claude.com/docs/en/memory#path-specific-rules) mechanism. `all` means the rule has no `paths:` frontmatter and loads unconditionally. Future rules could use globs like `**/*.php` or `src/api/**/*.ts` to load only when relevant.
 
 ## Install
 
 ### Skills
 
-Replace `<skill-name>` with the skill you want (e.g. `frankenphp-compat-check`).
+Replace `<skill-name>` with the skill you want (e.g. `symfony-frankenphp-check`).
 
 ```bash
 cp -r skills/<skill-name> ~/.claude/skills/
