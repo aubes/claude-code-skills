@@ -11,6 +11,10 @@ This skill focuses exclusively on **worker mode runtime safety** (not general Sy
 
 **Adjacent scopes (not covered here, but most rules transfer):** Symfony Messenger consumers (`messenger:consume`) and Symfony Scheduler (`#[AsCronTask]`, `#[AsPeriodicTask]`) are also long-running PHP processes. Sections §1, §2, §4, §5, §8, §9, §10, §11 apply almost verbatim (substitute "request" with "message" and `kernel.reset` with the Messenger `ServicesResetter` wired on `WorkerRunningEvent`). Sections §3 (superglobals), §6 (HTTP output), §7 (kernel event listeners) and §12 (FrankenPHP-specific extensions/CVEs) are HTTP-worker-specific and do not transfer. OS-level cronjobs running `bin/console` one-shot are out of scope (fresh process per run, no leak possible).
 
+## Note on `ResetInterface` fixes
+
+Several sections below (§1, §5, §7, §8, §9, §10) recommend implementing `ResetInterface` or tagging `kernel.reset` as the fix for per-request state. This only works if the service is actually instantiated during the request: a dedicated resetter nobody injects is silently skipped by Symfony's `ServicesResetter`. See §1 "Note on `reset()` placement" before recommending the implementation on a standalone class.
+
 ## How to audit
 
 1. If `$ARGUMENTS` is provided, use it as the root path. Otherwise, use the current working directory. Detect the `--critical-only` flag (or an explicit natural request like "critical only", "quick audit") to restrict the audit to Critical bullets; otherwise audit all severities.
@@ -51,6 +55,12 @@ Flag any mismatch (e.g. Symfony 7.4 still depending on `runtime/frankenphp-symfo
 - Property assignments or mutations (`$this->foo = ...`, `$this->items[] = ...`, `$this->counter++`) in any service called per request (controllers, listeners, message handlers, voters, state providers/processors, etc.)
 - Services aggregating data across calls (collectors, profilers, custom loggers) that do not implement `Symfony\Contracts\Service\ResetInterface`
 - Properties typed as mutable collections (`array`, `ArrayObject`, `SplQueue`) that grow during request handling
+- Services tagged `kernel.reset` or implementing `ResetInterface` with no DI consumer (no constructor injection, no `service()` / `@` reference, no `ServiceLocator` entry anywhere in the codebase): their `reset()` never fires and per-request state leaks across requests. See "Note on `reset()` placement" below for the mechanism and fix.
+
+**Detect procedure (orphan resetters):**
+1. Grep for classes implementing `ResetInterface` or tagged `kernel.reset` (including `#[AsTaggedItem('kernel.reset')]` / `#[AutoconfigureTag('kernel.reset')]`).
+2. For each, grep its FQCN across all service definitions (`*.yaml`, `*.php`, `*.xml`) and across constructors and parameters (type-hints, autowiring, `#[Autowire]`, `ServiceLocator` entries).
+3. If no consumer is found, flag it as an orphan resetter.
 
 **Ignore:**
 - Assignments in `__construct()`, `setContainer()`, or boot-time hooks
@@ -58,6 +68,11 @@ Flag any mismatch (e.g. Symfony 7.4 still depending on `runtime/frankenphp-symfo
 - Request-scoped services (explicitly tagged or scoped per request)
 
 **Fix:** Implement `ResetInterface` and clear all request-scoped properties in `reset()`. The `kernel.reset` tag is applied automatically when autoconfigure is enabled; verify it with `debug:container --tag=kernel.reset`.
+
+**Note on `reset()` placement:** `kernel.reset` fires only on services actually instantiated during the request. A dedicated resetter class nobody injects stays uninitialized and its `reset()` is silently skipped (`ServicesResetter` uses `IGNORE_ON_UNINITIALIZED_REFERENCE`). Idiomatic placements:
+- Implement `ResetInterface` directly on the service that mutates the state, or on a listener guaranteed to be instantiated each request (e.g. a `kernel.request` listener).
+- If the resetter must stay a dedicated class, inject it into a service that is consumed on every request, so the container materializes it.
+- Verify with `debug:container --tag=kernel.reset`, then confirm end-to-end that `reset()` fires (e.g. a temporary `error_log()` inside `reset()`); tag presence alone does not guarantee the call.
 
 ### 2. Static state (Critical)
 
