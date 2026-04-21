@@ -4,6 +4,8 @@ A handful of skills and rules I use with [Claude Code](https://claude.ai/code). 
 
 Pick what you like, ignore the rest.
 
+> ⚠️ Work in progress. Skills and rules are still being tuned. Expect breaking changes and rough edges.
+
 ## Skills vs Rules vs CLAUDE.md
 
 - **Skills** load on demand when you type `/skill-name` or when Claude detects a match. Use them for workflows: audits, checklists, multi-step procedures.
