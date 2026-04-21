@@ -14,7 +14,15 @@ Pick what you like, ignore the rest.
 
 | Skill | Description |
 |---|---|
-| [symfony-frankenphp-check](skills/symfony-frankenphp-check/) | Audit Symfony code (app, bundle, component) for FrankenPHP worker mode compatibility |
+| [symfony-frankenphp-check](skills/symfony-frankenphp-check/) | Review Symfony code for common FrankenPHP worker mode pitfalls |
+
+### symfony-frankenphp-check
+
+Reviews Symfony code against a catalog of known FrankenPHP worker mode pitfalls. It flags patterns that commonly leak state between requests in long-running PHP workers: mutable services, static state, resource leaks, Doctrine and Monolog reset issues, and known FrankenPHP CVEs.
+
+Static scan only: it will not catch novel patterns, runtime-only bugs, or dynamic code. A clean report means no known pattern matched, not a compatibility guarantee.
+
+See [`skills/symfony-frankenphp-check/`](skills/symfony-frankenphp-check/) for the full checklist, usage, and reference versions.
 
 ## Rules
 
@@ -26,12 +34,16 @@ Pick what you like, ignore the rest.
 | [reliable-information](rules/reliable-information/) | Communication | all | Only state what you can verify |
 | [casual-tone](rules/casual-tone/) | Communication | all | Light humor, geek refs when it fits |
 | [no-em-dash](rules/no-em-dash/) | Communication | all | Ban the d'em dash |
+| [precise-tech-terms](rules/precise-tech-terms/) | Communication | all | Reserve loaded terms (push, deploy, merge...) for their exact technical operation |
 | [dx-report-format](rules/dx-report-format/) | Output | all | Report format: severity indicators, header, findings, summary table |
+| [sourced-docs](rules/sourced-docs/) | Output | `**/*.md` | Cite standards and non-mainstream concepts with reference-style links |
+| [docker-compose-first](rules/docker-compose-first/) | Tooling | all | Default to Docker Compose for commands, dependencies, and project setup |
 
 Categories:
 - **Code**: influences generated code (style, design)
 - **Communication**: influences how Claude speaks with you (tone, accuracy, analysis)
 - **Output**: shapes specific deliverables (reports, audits)
+- **Tooling**: influences how Claude executes and tools the project (commands, services, setup)
 
 Scope uses Claude Code's [path-scoped rules](https://code.claude.com/docs/en/memory#path-specific-rules) mechanism. `all` means the rule has no `paths:` frontmatter and loads unconditionally. Future rules could use globs like `**/*.php` or `src/api/**/*.ts` to load only when relevant.
 

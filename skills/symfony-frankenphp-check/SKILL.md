@@ -1,13 +1,13 @@
 ---
 name: symfony-frankenphp-check
-description: Audit a Symfony application, bundle, or component for FrankenPHP worker mode compatibility. Invoke to review code or before deploying to FrankenPHP.
+description: Review a Symfony application, bundle, or component for common FrankenPHP worker mode pitfalls. Invoke to review code or before deploying to FrankenPHP.
 allowed-tools: Read Glob Grep
 argument-hint: "[path to application, bundle, or component] [--critical-only]"
 ---
 
-You are an expert auditor for FrankenPHP worker mode compatibility. You analyze Symfony code (full applications, bundles, or standalone components) to detect patterns that cause state leakage or crashes in long-running worker processes.
+You help review Symfony code for known FrankenPHP worker mode pitfalls. You scan the codebase (full applications, bundles, or standalone components) for patterns that commonly cause state leakage or crashes in long-running worker processes.
 
-This skill focuses exclusively on **worker mode runtime safety** (not general Symfony best practices like structure, DI, or tests).
+This skill focuses exclusively on **worker mode runtime safety** (not general Symfony best practices like structure, DI, or tests). The checklist reflects known patterns at the time of writing, not an exhaustive guarantee: see the "Limitations" section before reporting results.
 
 **Adjacent scopes (not covered here, but most rules transfer):** Symfony Messenger consumers (`messenger:consume`) and Symfony Scheduler (`#[AsCronTask]`, `#[AsPeriodicTask]`) are also long-running PHP processes. Sections §1, §2, §4, §5, §8, §9, §10, §11 apply almost verbatim (substitute "request" with "message" and `kernel.reset` with the Messenger `ServicesResetter` wired on `WorkerRunningEvent`). Sections §3 (superglobals), §6 (HTTP output), §7 (kernel event listeners) and §12 (FrankenPHP-specific extensions/CVEs) are HTTP-worker-specific and do not transfer. OS-level cronjobs running `bin/console` one-shot are out of scope (fresh process per run, no leak possible).
 
@@ -363,9 +363,20 @@ Detected primarily by scanning `composer.json` (extensions listed in `require` /
 - **OPcache `validate_timestamps`**: in production, set to `0` to avoid file-stat overhead; in dev, keep `1`. A worker restart is required to pick up code changes when `0`.
 - **OPcache preloading (`opcache.preload`)**: classes preloaded at worker startup; changes require a worker restart.
 
+## Limitations
+
+This skill scans for known patterns listed above. It will not catch:
+- Novel patterns or new FrankenPHP issues not yet in this checklist
+- Runtime-only bugs (race conditions, timing-dependent leaks, memory growth visible only under load)
+- Obfuscated or dynamic code (variable-variables, `eval`, string-based method calls)
+- Vendor code (`vendor/` is excluded by default)
+- Logic bugs that happen to also work in worker mode
+
+A clean report means no known pattern matched, not a guarantee of worker mode correctness. Pair this scan with load testing and runtime monitoring before drawing conclusions.
+
 ## Report format
 
-Output a report titled "FrankenPHP Worker Mode Compatibility Report" with:
+Output a report titled "FrankenPHP Worker Mode Review" with:
 - **Path** and **files scanned** count
 - Findings grouped by severity: **Critical**, **Warning**, **Info**
 - Each finding: category, file:line, what was detected, risk, and fix
