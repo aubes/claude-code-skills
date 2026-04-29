@@ -30,16 +30,16 @@ See [`skills/symfony-frankenphp-check/`](skills/symfony-frankenphp-check/) for t
 
 | Rule | Category | Scope | Description |
 |---|---|---|---|
-| [concise-comments](rules/concise-comments/) | Code | all | Short comments, don't explain the framework |
-| [pragmatic-design](rules/pragmatic-design/) | Code | all | No over-engineering, solve the actual problem |
-| [objective-analysis](rules/objective-analysis/) | Communication | all | Facts and trade-offs, not opinions |
-| [reliable-information](rules/reliable-information/) | Communication | all | Only state what you can verify |
-| [casual-tone](rules/casual-tone/) | Communication | all | Light humor, geek refs when it fits |
-| [no-em-dash](rules/no-em-dash/) | Communication | all | Ban the d'em dash |
-| [precise-tech-terms](rules/precise-tech-terms/) | Communication | all | Reserve loaded terms (push, deploy, merge...) for their exact technical operation |
-| [dx-report-format](rules/dx-report-format/) | Output | all | Report format: severity indicators, header, findings, summary table |
-| [sourced-docs](rules/sourced-docs/) | Output | `**/*.md` | Cite standards and non-mainstream concepts with reference-style links |
-| [docker-compose-first](rules/docker-compose-first/) | Tooling | all | Default to Docker Compose for commands, dependencies, and project setup |
+| [concise-comments](rules/concise-comments.md) | Code | all | Short comments, don't explain the framework |
+| [pragmatic-design](rules/pragmatic-design.md) | Code | all | No over-engineering, solve the actual problem |
+| [objective-analysis](rules/objective-analysis.md) | Communication | all | Facts and trade-offs, not opinions |
+| [reliable-information](rules/reliable-information.md) | Communication | all | Only state what you can verify |
+| [casual-tone](rules/casual-tone.md) | Communication | all | Light humor, geek refs when it fits |
+| [no-em-dash](rules/no-em-dash.md) | Communication | all | Ban the d'em dash |
+| [precise-tech-terms](rules/precise-tech-terms.md) | Communication | all | Reserve loaded terms (push, deploy, merge...) for their exact technical operation |
+| [dx-report-format](rules/dx-report-format.md) | Output | all | Report format: severity indicators, header, findings, summary table |
+| [sourced-docs](rules/sourced-docs.md) | Output | `**/*.md` | Cite standards and non-mainstream concepts with reference-style links |
+| [docker-compose-first](rules/docker-compose-first.md) | Tooling | all | Default to Docker Compose for commands, dependencies, and project setup |
 
 Categories:
 - **Code**: influences generated code (style, design)
@@ -72,10 +72,16 @@ Replace `<rule-name>` with the rule you want (e.g. `concise-comments`).
 
 ```bash
 # Global (all projects)
-cp -r rules/<rule-name> ~/.claude/rules/
+cp rules/<rule-name>.md ~/.claude/rules/
 
 # Per project
-cp -r rules/<rule-name> your-project/.claude/rules/
+cp rules/<rule-name>.md your-project/.claude/rules/
+```
+
+Or copy them all in one go:
+
+```bash
+mkdir -p ~/.claude/rules && cp rules/*.md ~/.claude/rules/
 ```
 
 Rules are loaded automatically when present in `~/.claude/rules/` or `.claude/rules/` (Claude Code discovers `.md` files recursively).
@@ -84,7 +90,7 @@ Rules are loaded automatically when present in `~/.claude/rules/` or `.claude/ru
 
 **Skills:** create a dir in `skills/`, add a `SKILL.md` following the [skill format](https://code.claude.com/docs/en/skills), include a "Technologies covered" table.
 
-**Rules:** create a dir in `rules/`, add a `rule.md`.
+**Rules:** add a `<name>.md` file directly in `rules/` (one rule per file, conforming to Claude Code's [`.claude/rules/`](https://code.claude.com/docs/en/memory#organize-rules-with-claude/rules/) convention).
 
 ## License
 
