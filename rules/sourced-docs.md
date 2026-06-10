@@ -6,8 +6,8 @@ Scope: **markdown formatting** of citations and footnotes inside `.md` files. Wh
 
 When writing markdown documentation:
 
-- Use reference-style links `[label][ref]` for citations; never inline full URLs in the prose
-- For acronyms or non-obvious concepts, add a one-sentence explanation via a markdown footnote `[^label]`
+- Use reference-style links `[label][ref]` for citations; never inline full URLs in the prose (badge lines are exempt)
+- For non-obvious acronyms or concepts, add a one-sentence explanation via a markdown footnote `[^label]`
 - Group `[ref]: url` definitions and `[^label]: ...` bodies at the bottom of the file
 
 Example:

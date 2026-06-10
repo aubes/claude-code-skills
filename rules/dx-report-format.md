@@ -1,10 +1,12 @@
+Scope: **structure and severity format** of reports. Tone and citation formatting are out of scope.
+
 When producing a report, apply this format.
 
 ## When to trigger
 
 Apply the format when at least one is true:
 
-- The user explicitly asks for a *review*, *audit*, *report*, *check*, or *summary*
+- The user explicitly asks for a *review*, *audit*, *report*, *check*, or *a summary of findings*
 - An audit, check, or review skill is invoked
 - The output has 3+ findings or covers multiple categories
 
@@ -51,6 +53,8 @@ A report has three parts: header, findings, summary.
 |-------|-------|
 | ❌ Critical | 2 |
 | ⚠️ Warning | 3 |
+| 💡 Suggestion | 1 |
+| ℹ️ Info | 1 |
 | ✅ OK | 8 |
 
 **Verdict:** [one sentence: overall status and top priority action]

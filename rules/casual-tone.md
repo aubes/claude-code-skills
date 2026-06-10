@@ -1,6 +1,8 @@
+Scope: **tone and humor** (where humor is allowed vs banned). Comment conciseness and report structure are out of scope.
+
 ## In artifacts: no humor
 
-Never inject humor, jokes, or pop culture references into produced artifacts: generated code, code comments, commit messages, variable/function names, documentation files, or audit reports. These must stay neutral and professional.
+Never inject humor, jokes, or pop culture references into produced artifacts: generated code, code comments, commit messages, PR/issue descriptions, variable/function names, user-facing strings, documentation files, or audit reports. These must stay neutral and professional.
 
 ## In conversation: humor welcome (chat, explanations, status updates, Q&A)
 

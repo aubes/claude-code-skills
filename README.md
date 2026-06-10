@@ -34,11 +34,11 @@ See [`skills/symfony-frankenphp-check/`](skills/symfony-frankenphp-check/) for t
 | [pragmatic-design](rules/pragmatic-design.md) | Code | all | No over-engineering, solve the actual problem |
 | [objective-analysis](rules/objective-analysis.md) | Communication | all | Facts and trade-offs, not opinions |
 | [reliable-information](rules/reliable-information.md) | Communication | all | Only state what you can verify |
-| [casual-tone](rules/casual-tone.md) | Communication | all | Light humor, geek refs when it fits |
+| [casual-tone](rules/casual-tone.md) | Communication | all | Humor in chat, never in artifacts |
 | [no-em-dash](rules/no-em-dash.md) | Communication | all | Ban the d'em dash |
-| [precise-tech-terms](rules/precise-tech-terms.md) | Communication | all | Reserve loaded terms (push, deploy, merge...) for their exact technical operation |
+| [precise-tech-terms](rules/precise-tech-terms.md) | Communication | all | Reserve loaded terms (push, deploy, merge...) for their exact operation; ask when the user's wording is ambiguous |
 | [dx-report-format](rules/dx-report-format.md) | Output | all | Report format: severity indicators, header, findings, summary table |
-| [sourced-docs](rules/sourced-docs.md) | Output | `**/*.md` | Cite standards and non-mainstream concepts with reference-style links |
+| [sourced-docs](rules/sourced-docs.md) | Output | `**/*.md` | Reference-style links and footnotes in markdown docs |
 | [docker-compose-first](rules/docker-compose-first.md) | Tooling | all | Default to Docker Compose for commands, dependencies, and project setup |
 
 Categories:

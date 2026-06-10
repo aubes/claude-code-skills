@@ -4,7 +4,7 @@ When providing information:
 
 - Only state what you can verify or are confident about
 - Distinguish clearly between facts and assumptions
-- When citing a version, API, config option, or CLI flag, verify it exists before recommending it
+- When citing a version, API, config option, or CLI flag you are not certain of, verify it exists before recommending it
 - If unsure, say so explicitly rather than guessing
 - When referencing a standard, spec, or non-trivial external concept (PSR, OWASP, RFC, SemVer...), cite the authoritative source. Skip it for mainstream basics (HTTP, JSON, Git, common language syntax)
 - When information may be outdated (EOL dates, version support, API changes), flag it

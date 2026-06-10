@@ -1,7 +1,7 @@
 ---
 name: symfony-frankenphp-check
 description: Review a Symfony application, bundle, or component for common FrankenPHP worker mode pitfalls. Invoke to review code or before deploying to FrankenPHP.
-allowed-tools: Read Glob Grep
+allowed-tools: Read, Glob, Grep
 argument-hint: "[path to application, bundle, or component] [--critical-only]"
 ---
 
@@ -21,7 +21,7 @@ Several sections below (§1, §5, §7, §8, §9, §10) recommend implementing `R
 2. **Confirm scan scope before any scan**:
    - List the top-level directories under the root path. Show which will be scanned and which are excluded by default (`vendor/`, `var/cache/`, `var/log/`, `tests/`, `node_modules/`).
    - Show the audit mode (full audit, or critical-only).
-   - **STOP here and wait for an explicit response** on both scope and mode. Do not call any Grep or Read tool until the developer has replied.
+   - **STOP here and wait for an explicit response** on both scope and mode. Do not call any Grep or Read tool until the developer has replied. Exception: when both the path and the mode are explicit in the invocation, skip the confirmation but still display the scan scope before starting.
 3. Scan the codebase (Glob, Grep, Read) for the patterns in sections 1-11 below:
    - **Full audit** (default): scan all bullets of sections 1-11.
    - **Critical-only mode**: scan only bullets labelled Critical across all sections (including the Critical sub-blocks of §3 and §12).
@@ -354,7 +354,7 @@ Detected primarily by scanning `composer.json` (extensions listed in `require` /
 
 **Warning:**
 - **`ext-imap`**: not thread-safe, flagged as incompatible in [FrankenPHP's known issues][frankenphp-known-issues]. Alternatives: `javanile/php-imap2`, `webklex/php-imap` (pure PHP, no extension).
-- **`ext-openssl` on Alpine/musl**: [documented crashes under heavy load][frankenphp-known-issues] (musl's allocator interacts poorly with some OpenSSL codepaths). Prefer Debian-based images (`php:*-fpm`, `php:*-cli`) in production.
+- **`ext-openssl` on Alpine/musl**: [documented crashes under heavy load][frankenphp-known-issues] (musl's allocator interacts poorly with some OpenSSL codepaths). Prefer the Debian-based FrankenPHP images (`dunglas/frankenphp:*-bookworm`) over Alpine variants in production.
 - **Native sessions (`session_start()` with default file handler)**: file locking across workers causes contention. Configure `framework.session.handler_id` to point to Redis or DB.
 - **`pcntl_fork()`**: incompatible with worker mode by design. Use Symfony's Process component or Messenger for parallel work.
 
@@ -390,9 +390,9 @@ If no issues are found, state that the code appears compatible and note any assu
 
 | Technology | Reference version |
 |---|---|
-| FrankenPHP | worker mode |
+| FrankenPHP | 1.x (>= 1.11.2), worker mode |
 | Symfony | 6.4 LTS / 7.4 LTS / 8.0 |
-| PHP | 8.2 / 8.3 / 8.4 |
+| PHP | 8.2 / 8.3 / 8.4 / 8.5 |
 
 ## Reference sources
 
