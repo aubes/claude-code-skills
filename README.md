@@ -17,6 +17,7 @@ Pick what you like, ignore the rest.
 | Skill | Description |
 |---|---|
 | [symfony-frankenphp-check](skills/symfony-frankenphp-check/) | Review Symfony code for common FrankenPHP worker mode pitfalls |
+| [vuejs-best-practices-advisor](skills/vuejs-best-practices-advisor/) | Best practices for Vue 3 apps (Style Guide, performance, accessibility, security, Composition API) |
 
 ### symfony-frankenphp-check
 
@@ -25,6 +26,14 @@ Reviews Symfony code against a catalog of known FrankenPHP worker mode pitfalls.
 Static scan only: it will not catch novel patterns, runtime-only bugs, or dynamic code. A clean report means no known pattern matched, not a compatibility guarantee.
 
 See [`skills/symfony-frankenphp-check/`](skills/symfony-frankenphp-check/) for the full checklist, usage, and reference versions.
+
+### vuejs-best-practices-advisor
+
+Mirrors the official Vue 3 Style Guide (priorities A to D) and the guide's Best Practices section (production deployment, performance, accessibility, security), plus modern idioms (`<script setup>`, Pinia). Covers component naming, prop definitions, keyed `v-for`, scoped styling, reactivity, and the in-DOM vs SFC template rules.
+
+Guide-level only: build tooling internals, test strategy, router/store deep APIs, and SSR (Nuxt) are out of scope. Targets Vue 3 (Vue 2 is EOL since 2023-12-31).
+
+See [`skills/vuejs-best-practices-advisor/`](skills/vuejs-best-practices-advisor/) for the full rules, checklist, and reference sources.
 
 ## Rules
 
